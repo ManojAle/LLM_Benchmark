@@ -1,0 +1,5 @@
+Commit_url,"Code_before_execution_time(6000 times, In Seconds)","Code_after_execution_time(6000 times, In Seconds)","Code_Interpreter_working_status(0 : not working, 1: for working)",Code_interpreter_Execution_time,CodeGwen_Working_status,CodeGwen_Execution_time,Artigenz Coder_working_status,Artigenz Coder_Execution_time,NXCode_working_status,NXCode_Execution_time
+https://github.com/pygae/clifford/commit/36b59633b30acc3cfd0f7b1b9e5f541c720e2f3f,5.7,5.01,0,,1,5,1,5.18,1,5.01
+https://github.com/urule99/jsunpack-n/commit/c55e0255170c3fa5132a31cad00b2be4eb0f5e7f,12.29,6.03,0,,0,,0,,0,
+https://github.com/kugelrund/mesh_segmentation/commit/d97ba5446e96ef6cab24bd41f9dbf655f4a26a1f,12.99,7.58,1,17.41,0,,0,,0,
+https://github.com/zama-ai/concrete-ml/commit/32a778d2eb4933bc42c20b33dc8a0263cd5587e3,9.317,5.12,0,,1,6.357,1,9.903,1,3.022
