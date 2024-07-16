@@ -134,9 +134,13 @@ This approach directly addresses the root cause of the inefficiency in the origi
 **CodeInterpreter** : we were able to see the hallucination problem as it provided some text from the prompt not the explanation.
 
 ## Example -2 
-Link: ```https://github.com/urule99/jsunpack-n/commit/c55e0255170c3fa5132a31cad00b2be4eb0f5e7f```
+**Link**: ```https://github.com/urule99/jsunpack-n/commit/c55e0255170c3fa5132a31cad00b2be4eb0f5e7f```
+
+**Performance_Bug_Explanation**: The original implementation of `applyFilter` used regular expressions to remove non-ASCII characters from the beginning and end of a string, which is slow for large inputs. The new implementation replaces regex with character processing, iterating through the string to remove non-ASCII characters and reversing it for efficient processing of trailing characters. This change improves performance by avoiding the overhead of regex operations, especially for long strings, resulting in faster and more efficient character filtering.
 
 This Example is categorized as a `Inefficient_Algorithm/Data-structure/Expensive_Operation`
+
+**Performance_Bug_explanation**: The original implementation of calculating the graph Laplacian involved creating a dense diagonal scaling matrix (`Dsqrt`), which is computationally expensive both in terms of memory and processing. By replacing this with a vector of reciprocal terms and leveraging NumPy broadcasting operations, the performance is significantly improved. The new implementation avoids the overhead of creating a dense matrix and instead directly applies the scaling using vectorized operations, which are more efficient. This reduces both memory usage and computation time, resulting in a more performant calculation of the graph Laplacian.
 
 ### PL to NL Results:
 
@@ -314,20 +318,17 @@ To optimize this code, we will perform the following steps:
 
 2. Do not make a dense diagonal of the affinity matrix Dsqrt. Instead, we will make Dsqrt a 1D array. This saves memory too as we no longer need the 2D matrix. 
 
-Here is a detailed explanation for each change:
+Here is the detailed explanation of the change:
 
 Original Code:
-248c248
-<   Dsqrt = numpy.diag([math.sqrt(1/entry) for entry in W.sum(1)])
----
->  Dsqrt = numpy.sqrt(numpy.reciprocal(W.sum(1)))
+```python
+Dsqrt = numpy.diag([math.sqrt(1/entry) for entry in W.sum(1)])
+```
 
 Modified Code:
-248c248
-<   Dsqrt = numpy.diag([math.sqrt(1/entry) for entry in W.sum(1)])
----
->  Dsqrt = numpy.sqrt(numpy.reciprocal(W.sum(1)))
-
+```python
+Dsqrt = numpy.sqrt(numpy.reciprocal(W.sum(1)))
+```
 
 This will result in the reduction of the computational cost for the graph laplacian computation from O(n^3) to O(n^2) because numpy operations use BLAS/LAPACK under-the-hood (for large arrays) which have much efficient implementations for matrix computations.
 
