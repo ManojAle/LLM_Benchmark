@@ -342,3 +342,88 @@ This will result in the reduction of the computational cost for the graph laplac
 Code before execution time: 12.99 seconds
 Code after execution time: 7.58 seconds
 The performance improvement percentage for the LLM is approximately 41.65%. but Code interpreter is -34.03%. 
+
+Example-4:
+
+Link:https://github.com/zama-ai/concrete-ml/commit/32a778d2eb4933bc42c20b33dc8a0263cd5587e3
+
+Performance_bug_Explanation: The original implementation of `numpy_gemm` directly used a single NumPy operation to compute the matrix multiplication and addition, relying on the compiler's optimization capabilities. The improved implementation avoids potential optimization overhead by breaking down the computation into separate steps. It asserts that `alpha` and `beta` are both 1, simplifying the computation. The matrix multiplication is performed first, followed by the addition of `c_prime` only if it contains non-zero elements. This reduces unnecessary operations and enhances performance, especially in scenarios where `c_prime` is zero.
+
+### PL to NL Results:
+
+**Code Interpreter_7B**: Based on the provided GitHub commit, we can see that the modification involved the optimization of the code in the `numpy_gemm` function. The commit message is `chore: improve performances of numpy_gemm closes #154`, which indicates that a quality improvement was made for the `numpy_gemm` function to enhance the software's performance.
+
+Root Cause of Inefficiency:
+In the original code, the `numpy_gemm` function calculates the matrix multiplication of two input arrays `a` and `b`, and then multiplies the result with the scalar `alpha`, and adds the resultant array to `c`, multiplied with the scalar `beta`. However, this approach does not require any optimization from the compiler and thus may not be the most efficient implementation.
+
+Optimization Strategy:
+The optimization implemented in the revised code eliminates the multiplication of `alpha` with the resulting matrix multiplication of `a` and `b` in order to simplify the operation. Instead, it multiplies `a` and `b` directly to get `y`, and then adds a conditional check and multiplication with `c`, if necessary.
+
+This optimization is significant because it simplifies the mathematical operation and may increase the performance of the code overall. By avoiding multiplication with `alpha` and `beta`, it reduces unnecessary computations and computational resources. Additionally, the check for whether `c` is not equal to zero is performed in the optimized code, making the code more efficient.
+
+To implement the code modification in the future, one can update the `alpha` and `beta` values to `1` for matrix multiplication as shown in the optimized code. If there are specific optimization strategies to be considered, such as parallelization or specific matrix library optimizations, more modification might be required.
+
+Please note that the implementation assumes that the variables and functions used in the code are defined correctly and available during runtime.
+
+
+**codeQwen-1.5_7B** 
+
+The root cause of inefficiency in the original code is that the computation of the resultant tensor `y` is performed using the numpy `matmul` function, which is a general purpose matrix multiplication function in numpy. This might lead to additional computational overheads than necessary for some specific use cases.
+
+Optimization Strategy: To optimize the code and reduce the overhead, a more efficient method could be used to calculate the product of `a_prime` and `b_prime` as well as the summation of the product and `c_prime`, without using the `matmul` function, which might be inefficient for small to medium-sized matrices. One possible way could be to directly calculate `y` as `y = alpha * a_prime.dot(b_prime) + beta * c_prime` without explicitly creating the matrix product and then adding the optional value.
+
+Additional notes: The code change ensures that only explicit calculations are performed, reducing the number of operations performed. This would result in a more efficient code, especially for smaller matrices.
+
+**NXCode_7B** 
+
+Root Cause of Inefficiency:
+The code modification improves the performance by avoiding the multiplication of tensors `a_prime` and `b_prime` using `numpy.matmul`, a common operation in mathematical computations. Instead, it uses the basic matrix multiplication `@` operation which is optimized for efficient execution. This optimization minimizes the memory usage and computational complexity by utilizing vectorized operations.
+
+Optimization Strategy:
+The specific optimization strategy implemented is the elimination of the unnecessary multiplication operation when `alpha`, `beta`, and `c_prime` are constant. This strategy takes advantage of numpy's vectorized operations and enhances the performance of the code by reducing the number of computational steps and memory usage. The code snippet is modified to directly calculate the result `y` without redundant multiplication operations.
+
+Related Notes:
+The optimization is only applied when `alpha` and `beta` are equal to 1, and there is no modification in the value of `c_prime`. This is because the initial code was checking for an empty array instead of a zero value for `c_prime`, which may not capture all the possible cases where the optimization can be applied. Future modifications or improvements to the code base might require careful consideration and testing to optimize more cases.
+
+**Arti-Genz-Coder_7B**:
+
+Root Cause of Inefficiency: 
+Performing simple matrix multiplication can be slower and resource-intensive due to unnecessary transposition operations. These operations are not needed if the matrix dimensions are suitable.
+
+Optimization Strategy:
+There are several ways to speed up the computation and reduce memory usage. Here's one strategy:
+
+1. In the modified code, using `numpy.argwhere(c_prime != 0)` is a waste of computation. It is used to check if the array c_prime is not an array of zeros. Since c_prime is always a matrix which equals 0 if it is not provided, we can just skip the computation.
+
+2. The operation `assert_true((alpha, beta) == (1, 1))` is also redundant. `alpha` and `beta` are always set to 1. We can safely remove these lines as they are not contributing to the computational overhead.
+
+3. In the `alpha * numpy.matmul(a_prime, b_prime)` line, the `alpha` scalar multiplication is unnecessary if it's 1. However, it is added in the original code without further analysis. This means the multiplication could be a performance bottleneck if it had to compute a large matrix.
+
+4. `beta * c_prime` is unnecessary unless `c_prime` is not all zeros. We've already removed the unnecessary line with the `assert_true` command.
+
+After these modifications, the code will be more efficient and will not waste time and resources on unnecessary operations, such as transposition and unnecessary scalar multiplications. It will also be compatible with further changes in the code without needing to adjust the `alpha` and `beta` parameters. 
+
+Related Notes: 
+These changes aim to optimize the code by making use of numpy's optimized BLAS (Basic Linear Algebra Subprograms) routines and improving the structure of the code to make it easier to maintain and understand. It's important to remember that optimizations should be used judiciously because they can make the code harder to understand for those who are not familiar with the specific optimization techniques.
+
+### NL to PL Results( Execution Experiment): 
+# LLM Performance Comparison
+## LLM Performance Improvement
+
+| LLMs            | Performance Improvement (%) |
+|-----------------|-----------------------------|
+| CodeGwen        | 31.77%                      |
+| Artigenz Coder  | -6.29%                      |
+| NXCode          | 67.56%                      |
+
+The overall improvement of the code after execution, compared to the code before execution, is 45%. This means the execution time was reduced from 9.317 seconds to approximately 5.12 seconds.
+
+Comparing this general improvement with the individual LLM improvements:
+
+CodeGwen achieved a 31.77% improvement, which is lower than the general 45% improvement. This suggests that while CodeGwen does enhance performance, it does not reach the same level of optimization as the general improvement.
+
+Artigenz Coder showed a -6.29% performance change, indicating that it actually degraded the performance rather than improving it. This is significantly worse compared to the 45% general improvement.
+
+NXCode exhibited a 67.56% improvement, surpassing the general 45% improvement. This indicates that NXCode is exceptionally effective in optimizing the execution time, performing better than the average improvement achieved.
+
+In summary, while the general code improvement is 45%, NXCode outperforms this benchmark with a higher improvement rate, CodeGwen falls short of it, and Artigenz Coder underperforms by worsening the execution time.
