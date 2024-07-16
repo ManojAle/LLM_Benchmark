@@ -72,7 +72,7 @@ Optimization Strategy:
 
 This approach directly addresses the root cause of the inefficiency in the original code by minimizing type checks and improving efficiency. The commit message acknowledges the identified issue and provides a rationale for the optimization strategy. The modified code follows the improvements in terms of performance and resource utilization.
 
-NL to PL Results( Execution Experiment):
+### NL to PL Results( Execution Experiment):
 
 | LLMs           |   Performance Improvement (%) |
 |:---------------|------------------------------:|
@@ -80,6 +80,6 @@ NL to PL Results( Execution Experiment):
 | Artigenz_Coder |                       9.12    |
 | NXCode         |                      12.10    |
 
-CodeGwen: Achieved a performance improvement of 12.28% over the initial execution time. When compared to human-optimized code, it showed a minor additional improvement of 0.20%.
-Artigenz Coder: Improved by 9.12% over the initial execution time. However, it was slightly less effective than human optimization, showing a decrease of -3.39%.
-NXCode: Improved performance by 12.10% over the initial execution time, equaling the human-optimized code with no additional improvement.
+**CodeGwen**: Achieved a performance improvement of 12.28% over the initial execution time. When compared to human-optimized code, it showed a minor additional improvement of 0.20%.
+**Artigenz Coder**: Improved by 9.12% over the initial execution time. However, it was slightly less effective than human optimization, showing a decrease of -3.39%.
+**NXCode**: Improved performance by 12.10% over the initial execution time, equaling the human-optimized code with no additional improvement.
