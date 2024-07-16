@@ -332,8 +332,7 @@ Dsqrt = numpy.sqrt(numpy.reciprocal(W.sum(1)))
 
 This will result in the reduction of the computational cost for the graph laplacian computation from O(n^3) to O(n^2) because numpy operations use BLAS/LAPACK under-the-hood (for large arrays) which have much efficient implementations for matrix computations.
 
-## NL to PL Results( Execution Experiment): 
-### LLM Performance Comparison
+### NL to PL Results( Execution Experiment): 
 
 | LLM              | Performance Improvement (%) |
 |------------------|-----------------------------|
@@ -406,9 +405,8 @@ After these modifications, the code will be more efficient and will not waste ti
 Related Notes: 
 These changes aim to optimize the code by making use of numpy's optimized BLAS (Basic Linear Algebra Subprograms) routines and improving the structure of the code to make it easier to maintain and understand. It's important to remember that optimizations should be used judiciously because they can make the code harder to understand for those who are not familiar with the specific optimization techniques.
 
-## NL to PL Results( Execution Experiment): 
+### NL to PL Results( Execution Experiment): 
 
-### LLM Performance Improvement
 
 | LLMs            | Performance Improvement (%) |
 |-----------------|-----------------------------|
