@@ -16,11 +16,56 @@ Here, Our Primary objective is to show the self consistancy of the LLMs using ou
  Our design for the Experimentation is we want to check the LLM how it preserves to Generate the Source code from it's own description. we start with code summarization (PL to NL) using a top 4 7B LLMs in the Hugggingface Code LLMs leaderboard. we have used CodeInterpreter 7B, Artigenz Coder 7B, CodeQwen 7B, NXCoder 7B. we provide code before,code after and commit message as a input. we crafted a prompt to focus on the Performance in-efficiency in the code and how they fixed it. from this we were able to generate quality description which talks about the performance issue and how it is optimized using these top LLMs. for Next step our Code Generation task ( NL to PL) we provide code before + descritoption to optimize the issue in the code before. finally, we augument the code before and after with the help of LLM to executable code then we execute them in a Python environment to check the performance. For Augumenting the inputs as a executable code,  we use GPT-4o. we select all the Augumented code Manually to filter High quality data points. which will be used for Executable Experiment.
 
 so, Executable Experiment, we run the code for N iterations 5 times to make sure our code before run for more than 5s. Normally, our NL to PL stage, LLMs struggle to generate the Optimized code as some lack of information in the description causes LLM to be not consistent in those cases. we wanted to experiment these for our performance related Examples which is crafted by humans. 
+## PL to NL prompt:
+'''
+You are provided with a GitHub commit in this format:
+Commit Message: """the commit message written by the author"""
+Original Code: """the code before the code modificaton"""
+Modified Code: """the code after the code modification"""
+Code Diff : """the diff between the original and the modified code"""
 
+The commit is implementing a code optimization to improve software performance or resource utilization.
+"
+Your task is to meticulously examine the commit message, the original code, the modified code, and the differences between the original and modified code (code diff) to understand the improvements in terms of  performance or resource usage. Focus primarily on the changes made to the code as well as the commit message to grasp how they improve performance or resource usage. Your goal is to understand:"
 
-## Example Demonstration: 
+1) The root cause of inefficiency in the original code that necessitated these optimizations.
+2) The optimization implemented in the revised code, including a deeper understanding on how the modification addresses the identified inefficiencies.
 
-Example-1:
+Your output should be structured to clearly present:
+Root Cause of Inefficiency: Explain the specific performance or resource inefficiency issues found in the original code and their root causes.
+Optimization Strategy: Based on the provided commit and modified code, elaborate the strategies to overcome the root cause of the inefficiencies, detailing the rationale and significance of each optimization. Explain the optimization such a way that one can implement the code modification by following the strategy. Use the "related notes" section to better explain the commit if required.
+
+- Commit Message: 
+{commit_message}
+
+- Original Code:
+```{Original_Code}```
+
+- Modified Code:
+```{Modified_Code}```
+
+Code Diff:
+```{Code_Diff}```
+
+Model Response: '''
+## NL to PL Prompt: 
+
+'''
+You are provided with an explanation of a code optimization and the original code. Your task is to generate the optimized code based on the explanation. Here are the details:
+
+Explanation: 
+{explanation}
+
+Original Code:
+```{original_code}```
+
+Your task is to generate the optimized code that implements the given explanation. The optimized code should reflect the improvements described in the explanation.
+
+Optimized Code: '''
+
+# Example Demonstrations: 
+
+## Example-1:
 Link: ```https://github.com/pygae/clifford/commit/36b59633b30acc3cfd0f7b1b9e5f541c720e2f3f```
 
 This Example is categorized as a `Inefficient_Algorithm/Data-structure/Expensive_Operation`
@@ -85,3 +130,214 @@ This approach directly addresses the root cause of the inefficiency in the origi
 **Artigenz Coder**: Improved by 9.12% over the initial execution time. However, it was slightly less effective than human optimization, showing a decrease of -3.39%.
 
 **NXCode**: Improved performance by 12.10% over the initial execution time, equaling the human-optimized code with no additional improvement.
+
+**CodeInterpreter** : we were able to see the hallucination problem as it provided some text from the prompt not the explanation.
+
+## Example -2 
+Link: ```https://github.com/urule99/jsunpack-n/commit/c55e0255170c3fa5132a31cad00b2be4eb0f5e7f```
+
+This Example is categorized as a `Inefficient_Algorithm/Data-structure/Expensive_Operation`
+
+### PL to NL Results:
+
+**Code Interpreter_7B**: Root Cause of Inefficiency:
+The original code has two regular expression searches, one for starting non-ASCII characters and another for trailing non-ASCII characters. Both of these searches can be inefficient as they involve iterating over the input characters and performing various operations. The time complexity of these operations can be significant, particularly for large inputs. 
+
+The inefficiency in the code arises due to the two separate searches and the subsequent removal or processing of characters based on these searches, which results in unnecessary overhead.
+
+Optimization Strategy:
+To improve the software's performance and resource utilization, the code can be optimized by reducing the number of regular expression searches and unnecessary operations. In the modified code, a check has been added to limit the processing based on file size. If the input length exceeds 10 million characters, the function returns the original input without further processing. 
+
+By incorporating this check, unnecessary character processing is bypassed, reducing the time complexity significantly. Additionally, the removal of unnecessary regular expressions eliminates the overhead of pattern matching and character processing.
+
+To implement this code modification, follow the strategy as follows:
+1. Modify the applyFilter function in the pdf class to include the check for input length.
+2. If the input length is greater than 10 million characters, return the input without processing it further.
+3. Otherwise, continue with the processing as done in the original code.
+
+Please note that the code modifications should be made in the relevant files and functions.
+
+Root Cause of Inefficiency: 
+In the original code, `isinstance(other, numbers.Number)` check was done for both operations, while these checks were incorrectly done on every operation rather than just on `MultiVector <op> something_else` operation making comparison costly for a `MultiVector` with a `number`, causing a performance degradation.
+
+Optimization Strategy: 
+The change incorporated is a conditional check `isinstance(other, MultiVector)` before the inefficient `isinstance(other, numbers.Number)` check which would save the majority of the operations, hence making it more efficient. The main reason behind this was the primary operation scenario of `MultiVector <op> something_else`, hence, it's more efficient to check for this specific case first while previously, for other cases, we were executing the inefficient check.
+
+The modified code now checks if the other argument is a `MultiVector` first before it tries to check if it's a number. This not only eliminates the unnecessary `isinstance(other, numbers.Number)` check but also increases the efficiency for the specific primary scenario. Hence, it will not only decrease the execution time but also will save resources.
+
+The "Note" about the commit would be that the function has already been enhanced to check for a `MultiVector` first rather than using a `boolean` flag variable to check once. Therefore, the commit does not need any further notes.
+
+**codeQwen-1.5_7B** 
+
+
+Root Cause of Inefficiency:
+- The previous code relied on regular expressions to identify and remove leading and trailing non-ASCII characters, which can be time-consuming for large input files.
+- Additionally, there was an erroneous subtraction operation that was erroneously applied to the output when cutting trailing non-ASCII characters.
+
+Optimization Strategy:
+- To optimize the performance and resource usage of the code, the logic has been re-written to process the characters directly instead of using regular expressions.
+- First, the function checks if the input file size exceeds a certain threshold (10 million characters for this example). If it does, it returns the original input without any modification, as processing large files could be resource-intensive.
+- Then, the function iterates through the beginning and end of the input string using character comparisons. If a non-ASCII character is found, the respective part of the string is trimmed.
+- After trimming the input, it is reversed to achieve the same functionality as the original code but in a more direct manner.
+- The function then returns the modified input.
+
+Implementation Strategy:
+- The optimization strategies implemented in the code differ significantly from the original ones, including changing the regular expression to manual character comparisons, directly trimming the input before processing, and reversing the string post-processing. The added logic checks if the input size is larger than 10 million characters, which is an arbitrary threshold and can be adjusted based on specific requirements.
+- Following the strategy, the function first checks the input file size and returns the original input if it exceeds the threshold. Then, it iteratively trims non-ASCII characters from the beginning and end of the input using character comparisons. After trimming, the function reverses the input to achieve the desired outcome.
+- By implementing this code modification, the original code can perform significantly better for large input files, especially those with many non-ASCII characters.
+
+**NXCode_7B** 
+
+Root Cause of Inefficiency:
+The original code uses regular expressions to remove leading and trailing non-ascii characters from the input string. This approach, however, can be inefficient for large strings as it involves searching and replacing characters in the string using regex. 
+
+Optimization Strategy:
+- The original implementation can be replaced with a character processing approach that directly examines each character and performs the desired modifications, like cutting non-ascii characters from both ends of the string. This is efficient as the modifications are done character by character without requiring the use of regular expressions.
+
+Related Notes:
+The modification has been made to apply a maximum length of 10 million characters to the input string. This optimization is particularly useful for handling large volumes of data and avoiding potential performance issues associated with using a regular expression for such operations.
+
+```python
+class pdf:
+    @staticmethod
+    def applyFilter(input):
+        if len(input) > 10000000:
+            return input
+
+        input = pdf.trimNonAsciiStart(input)
+        input = pdf.trimNonAsciiEnd(input)
+        return input
+
+    @staticmethod
+    def trimNonAsciiStart(input):
+        for i in range(len(input)):
+            c = ord(input[i])
+            if 0 < c < 0x19 or 0x7f < c < 0xff or input[i] in ' \n\r':
+                pass
+            else:
+                input = input[i:]
+                break
+        return input
+
+    @staticmethod
+    def trimNonAsciiEnd(input):
+        input = input[::-1]
+        for i in range(len(input)):
+            c = ord(input[i])
+            if 0 < c < 0x19 or 0x7f < c < 0xff or input[i] in ' \n\r':
+                pass
+            else:
+                input = input[i:]
+                break
+        return input[::-1]
+
+    def main(files):
+        # other logic
+```
+
+This code optimizes the original implementation by reducing the string processing complexity to directly examine characters in a more efficient manner. The optimization is particularly beneficial for processing large volumes of data and improved performance compared to using regular expressions for non-ascii character trimming.
+
+**Arti-Genz-Coder_7B**:Root Cause of Inefficiency:
+The root cause of inefficiency in the original code typically relates to regular expression operations. Regular expressions are generally slow and resource-consuming for larger datasets, especially when they have a lot of different patterns to find and replace. Additionally, it would significantly slow down the program as it has to search the entire string to look for non-ASCII characters from the beginning and end. We have detected these issues with the regex patterns in the original code using the 're' module.
+
+Optimization Strategy:
+The optimization implemented removes the use of regex operations which greatly improves the performance. Using a for loop to scan through each character's ASCII value and comparing it directly can vastly increase the speed and efficiency of our processing.
+
+We have created an optimized filter function that only processes the ASCII characters from the beginning and end.
+Furthermore, we also added validation checks to skip the processing if the length of the input string is greater than the threshold determined by the optimization (10,000,000 characters). This can further improve the process and avoid unnecessary computations.
+
+In conclusion, the proposed modification improves the program's performance by eliminating unnecessary regular expression processing, making it more efficient and faster. This approach also adds additional security checks and reduces the size of the processed data, improving overall resource utilization.
+
+Commit Message: Implement a code optimization to improve software performance by 10x the regular expression operations.
+
+### NL to PL Results( Execution Experiment): 
+
+None of the LLMs NL to PL results were executable in our augmented code! This is area we want to explore more to overcome! Also, NXCode_7B added the code itself in the description which is an undesired outcome!
+
+## Example-3
+
+Link: https://github.com/kugelrund/mesh_segmentation/commit/d97ba5446e96ef6cab24bd41f9dbf655f4a26a1f
+
+This Example is categorized as a `Inefficient_Algorithm/Data-structure/Expensive_Operation`
+
+### PL to NL Results:
+
+**Code Interpreter_7B**:The root cause of performance or resource inefficiency initially observed in the original code comes from the inefficient calculation of the graph laplacian, in two main aspects: the scaling of rows and columns of the affinity matrix, and the calculation of the degree matrix. In the original code, these steps are computed separately and later combined in a dot product, which results in unnecessary multiplication if the degree of a vertex (sum of rows/columns) is 1. This results in redundant computations and also increases the complexity of the code. 
+
+In the optimized code, the root cause was addressed by calculating the degree matrix by taking the square root of the reciprocal of the sum of rows of the affinity matrix. This takes the square root of the reciprocal of the sum and hence provides the desired degree matrix. Then the graph Laplacian is calculated by multiplying transposed affinity matrix and degree matrix. 
+
+Thus, by taking the square root of the reciprocal, the code minimizes the necessary and redundant computations, thereby enhancing performance and minimizing resource usage. 
+
+In addition to the performance improvements, there were no changes in the structure of the algorithm or the computations being performed. However, the choice of using dot and transpose operations was replaced by simple multiplication, making the code more efficient and easier to understand. This optimization improved readability and maintainability of the code. 
+
+It should be noted here that while performance improvement were achieved in terms of time and space complexity, real world effects are dependent on the specific algorithms and data used. It must be ensured that the optimizations are evaluated on the target system in real conditions to ensure the performance benefits actually result in improved utility or reduced costs. This is particularly critical when considering large-scale systems or performance-critical applications.
+
+**codeQwen-1.5_7B** 
+
+Root Cause of Inefficiency: The root cause of inefficiency in the original code lies in the computation of the graph laplacian. The original implementation first computes the degree matrix and then applies it to the affinity matrix to obtain the graph laplacian. This leads to high computational costs for large matrices.
+
+Optimization Strategy: 
+1. Improved Efficiency: To improve performance, the modified code calculates the degree matrix and the graph laplacian in a more efficient manner. It first computes the square root of the reciprocal of the sum of entries in each row of the affinity matrix, and then multiplies the original affinity matrix by the degree matrices and then transpose-multiplies them to obtain the graph laplacian. This significantly reduces the computational complexity of the computation. 
+2. Simplified Code: The code diff clearly shows the simplification of the code by using numpy broadcasting operations. This reduces the number of lines of code and makes the code easier to read and understand.
+
+Use the "related notes" section to explain the commit: 
+The initial implementation of the code was inefficient due to its reliance on the creation of a dense diagonal scaling matrix, followed by dot products between this matrix and the affinity matrix. The modified code takes advantage of numpy's efficient broadcasting operations, resulting in a more streamlined, readable, and efficient implementation.
+
+Additionally, the root cause of the efficiency issue lies in the use of the dot product to scale the degree matrix and the affinity matrix before computing the graph laplacian. By replacing the dot product with multiplication and transposition operations, the code reduces the computational complexity significantly.
+
+**NXCode_7B** 
+
+Root Cause of Inefficiency:
+The inefficiencies found in the original code were related to the calculation of the graph Laplacian. In the original implementation, the degree matrix was created using a list comprehension of square roots, which resulted in an O(n^2) operation. Additionally, the graph laplacian was calculated using matrix operations, which further led to an O(n^3) complexity. Moreover, the k-means clustering algorithm was not utilized optimally to perform k-clustering. The algorithm uses an expensive operation for calculating the distances from the cluster centroids, leading to an overall time complexity of O(n^3).
+
+Optimization Strategy:
+1. Reducing Complexity in Calculating Graph Laplacian:
+   The inefficiencies of creating a diagonal scaling matrix and then computing the graph Laplacian can be mitigated by employing the numpy function `sqrt` and `reciprocal` for better performance. The transformation from the original code snippet `Dsqrt = numpy.diag([math.sqrt(1/entry) for entry in W.sum(1)])` becomes `Dsqrt = numpy.sqrt(numpy.reciprocal(W.sum(1)))`. This eliminates the need for a list comprehension and improves the overall time complexity from O(n^2) to O(n).
+2. Improving Matrix Operations:
+   To optimize the computation of the graph laplacian using matrix operations, the original code performs a series of dot product operations. Instead, we can use numpy broadcasting and matrix element-wise multiplication to compute the graph Laplacian in a single step, which simplifies the code and potentially improves computational efficiency. This reduces the time complexity from O(n^3) to O(n^2), as shown in the modified code.
+3. Utilizing More Efficient Clustering Algorithm:
+   The time complexity of the current k-means clustering algorithm is high because it repeatedly computes distances between cluster centroids for each sample. Efficient clustering algorithms like Mini-Batch K-Means or DBSCAN, which are designed to handle large datasets effectively, could be considered for better performance. We recommend assessing and potentially adapting the clustering algorithm to improve performance.
+
+The modified code, which incorporates the optimization strategies, simplifies the graph laplacian computation and improves the efficiency of the k-means clustering algorithm, will result in a performance enhancement. It's important to note that depending on the specific requirements and constraints of the system, other optimizations may be beneficial as well.
+
+**Arti-Genz-Coder_7B**:
+
+Root Cause of Inefficiency:
+
+The original code creates a dense diagonal scaling matrix instead of a dense matrix to scale the rows and columns of the W affinity matrix for the graph laplacian. This dense diagonal scaling matrix is used as Dsqrt to get the graph laplacian, leading to a high computational cost in terms of the computational complexity.
+
+Optimization Strategy:
+
+To optimize this code, we will perform the following steps: 
+
+1. Use a sparse matrix instead of a dense diagonal scaling matrix to solve for the graph laplacian. The reason for doing this is that the W affinity matrix is mostly filled with zeros, which results in lots of unnecessary memory usage. By using a sparse matrix, we can only store the non-zero entries in the matrix to save memory, which is efficient, especially for large-scale sparse matrices.
+
+2. Do not make a dense diagonal of the affinity matrix Dsqrt. Instead, we will make Dsqrt a 1D array. This saves memory too as we no longer need the 2D matrix. 
+
+Here is a detailed explanation for each change:
+
+Original Code:
+248c248
+<   Dsqrt = numpy.diag([math.sqrt(1/entry) for entry in W.sum(1)])
+---
+>  Dsqrt = numpy.sqrt(numpy.reciprocal(W.sum(1)))
+
+Modified Code:
+248c248
+<   Dsqrt = numpy.diag([math.sqrt(1/entry) for entry in W.sum(1)])
+---
+>  Dsqrt = numpy.sqrt(numpy.reciprocal(W.sum(1)))
+
+
+This will result in the reduction of the computational cost for the graph laplacian computation from O(n^3) to O(n^2) because numpy operations use BLAS/LAPACK under-the-hood (for large arrays) which have much efficient implementations for matrix computations.
+
+### NL to PL Results( Execution Experiment): 
+# LLM Performance Comparison
+
+| LLM              | Performance Improvement (%) |
+|------------------|-----------------------------|
+| Code_Interpreter | -34.03                      |
+
+Code before execution time: 12.99 seconds
+Code after execution time: 7.58 seconds
+The performance improvement percentage for the LLM is approximately 41.65%. but Code interpreter is -34.03%. 
