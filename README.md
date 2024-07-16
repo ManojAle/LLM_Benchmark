@@ -74,5 +74,12 @@ This approach directly addresses the root cause of the inefficiency in the origi
 
 NL to PL Results( Execution Experiment):
 
+| LLMs           |   Performance Improvement (%) |
+|:---------------|------------------------------:|
+| CodeGwen       |                      12.28    |
+| Artigenz_Coder |                       9.12    |
+| NXCode         |                      12.10    |
 
-
+CodeGwen: Achieved a performance improvement of 12.28% over the initial execution time. When compared to human-optimized code, it showed a minor additional improvement of 0.20%.
+Artigenz Coder: Improved by 9.12% over the initial execution time. However, it was slightly less effective than human optimization, showing a decrease of -3.39%.
+NXCode: Improved performance by 12.10% over the initial execution time, equaling the human-optimized code with no additional improvement.
