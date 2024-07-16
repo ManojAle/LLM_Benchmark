@@ -752,34 +752,7 @@ Root Cause of Inefficiency:
 The main root cause of the inefficiency in the original code lies in the line where it checks if `other` is an instance of `numbers.Number`. This check is unnecessary for the case that `other` is a `MultiVector`, as only instances of `MultiVector` should be considered for arithmetic operations. Therefore, the code is unnecessarily performing a redundant check, potentially leading to slower performance and unnecessary memory usage.
 
 Optimization Strategy:
-To optimize this code by addressing the identified inefficiency, we can modify the code to first check if `other` is a `MultiVector`. If it is, we will simply return it without performing any further checks or modifications. This optimization will bypass the unnecessary check of whether `other` is a `numbers.Number` and significantly improve the efficiency of the code. The revised code is shown below:
-
-```python
-def _checkOther(self, other, coerce=True) -> Tuple['MultiVector', bool]:
-    """"""Ensure that the other argument has the same Layout or coerce value if
-    necessary/requested.
- 
-    _checkOther(other, coerce=True) --> newOther, isMultiVector
-    """"""
-    if isinstance(other, MultiVector):
-        if other.layout != self.layout:
-            raise ValueError(
-                ""cannot operate on MultiVectors with different Layouts"")
-        else:
-            return other, True
-    elif isinstance(other, numbers.Number):
-        if coerce:
-            # numeric scalar
-            newOther = self._newMV(dtype=np.result_type(other))
-            newOther[()] = other
-            return newOther, True
-        else:
-            return other, False
-    else:
-        return other, False
-```
-
-By implementing this optimization, we eliminate the redundant check of `other` being a `numbers.Number`, resulting in improved performance and reduced memory usage.","
+To optimize this code by addressing the identified inefficiency, we can modify the code to first check if `other` is a `MultiVector`. If it is, we will simply return it without performing any further checks or modifications. This optimization will bypass the unnecessary check of whether `other` is a `numbers.Number` and significantly improve the efficiency of the code. ,"
 ```python
 def _checkOther(self, other, coerce=True) -> Tuple['MultiVector', bool]:
     """"""Ensure that the other argument has the same Layout or coerce value if
