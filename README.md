@@ -13,7 +13,7 @@ As from Paper "BEYOND ACCURACY: EVALUATING SELF-CONSISTENCY OF CODE LARGE LANGUA
 Here, Our Primary objective is to show the self consistancy of the LLMs using our Performance data. Our performance data is mined from Git Repository. these data is crafted by various authors in the Git repositories. Our data will have Code before, Code After, Commit message, Category of the performance issue and patch informations. we collected a lot of high level performance code and categorized them into APIMisuse, MemoryInefficiency, PoorConcurrencyControl, InefficientI/O, 
  NetworkBottlenecks, InefficientAlgorithm/Data-structure, Parallelization, Micro-architectural. so we want to evaluate the LLMs on these categories. 
  
- Our design for the Experimentation is we want to check the LLM how it preserves to Generate the Source code from it's own description. we start with code summarization (PL to NL) using a top 4 7B LLMs in the Hugggingface Code LLMs leaderboard. we have used CodeInterpreter 7B, Artigenz Coder 7B, CodeQwen 7B, NXCoder 7B. we provide code before,code after and commit message as a input. we crafted a prompt to focus on the Performance in-efficiency in the code and how they fixed it. from this we were able to generate quality description which talks about the performance issue and how it is optimized using these top LLMs. for Next step our Code Generation task ( NL to PL) we provide code before + descritoption to optimize the issue in the code before. finally, we augument the code before and after with the help of LLM to executable code then we execute them in a Python environment to check the performance. For Augumenting the inputs as a executable code,  we use GPT-4o. we select all the Augumented code Manually to filter High quality data points. which will be used for Executable Experiment.
+ Our design for the Experimentation is we want to check the LLM how it preserves to Generate the Source code from it's own description. we start with code summarization (PL to NL) using a top 4 7B LLMs in the Hugggingface Code LLMs leaderboard. we have used CodeInterpreter 7B [1], Artigenz Coder 7B, CodeQwen 7B [2], NXCoder 7B [3]. we provide code before,code after and commit message as a input. we crafted a prompt to focus on the Performance in-efficiency in the code and how they fixed it. from this we were able to generate quality description which talks about the performance issue and how it is optimized using these top LLMs. for Next step our Code Generation task ( NL to PL) we provide code before + descritoption to optimize the issue in the code before. finally, we augument the code before and after with the help of LLM to executable code then we execute them in a Python environment to check the performance. For Augumenting the inputs as a executable code,  we use GPT-4o. we select all the Augumented code Manually to filter High quality data points. which will be used for Executable Experiment.
 
 so, Executable Experiment, we run the code for N iterations 5 times to make sure our code before run for more than 5s. Normally, our NL to PL stage, LLMs struggle to generate the Optimized code as some lack of information in the description causes LLM to be not consistent in those cases. we wanted to experiment these for our performance related Examples which is crafted by humans. 
 ## PL to NL prompt:
@@ -425,3 +425,28 @@ Artigenz Coder showed a -6.29% performance change, indicating that it actually d
 NXCode exhibited a 67.56% improvement, surpassing the general 45% improvement. This indicates that NXCode is exceptionally effective in optimizing the execution time, performing better than the average improvement achieved.
 
 In summary, while the general code improvement is 45%, NXCode outperforms this benchmark with a higher improvement rate, CodeGwen falls short of it, and Artigenz Coder underperforms by worsening the execution time.
+
+# Conclusion:
+
+Inconsistent generation was noted when descriptions lacked detail, leading to suboptimal code.
+Executable experiments revealed that some models like NXCoder 7B performed well, while others like Artigenz Coder 7B struggled, showing negative performance impacts.
+Self-Consistency Framework:
+
+By analyzing commit messages, original and modified code, and diffs, models generated summaries focusing on performance improvements.
+These summaries were then used to regenerate the code, aiming to match or exceed the human-optimized performance.
+Results:
+
+**Code Summarization**: Models effectively identified root causes of inefficiencies and optimization strategies.
+**Code Generation**: Performance improvements varied, with models like NXCoder 7B showing significant gains, while others underperformed.
+
+The study highlights the importance of detailed and accurate descriptions in maintaining self-consistency in LLM-generated performance code. The framework developed using PerfCurator data provides a robust method to evaluate and enhance LLMs' capabilities in performance-related tasks.
+
+# Referencences: 
+1.Zheng, T., Zhang, G., Shen, T., Liu, X., Lin, B.Y., Fu, J., Chen, W. and Yue, X., 2024. Opencodeinterpreter: Integrating code generation with execution and refinement. arXiv preprint arXiv:2402.14658.
+2.@article{qwen,
+  title={Qwen Technical Report},
+  author={Jinze Bai and Shuai Bai and Yunfei Chu and Zeyu Cui and Kai Dang and Xiaodong Deng and Yang Fan and Wenbin Ge and Yu Han and Fei Huang and Binyuan Hui and Luo Ji and Mei Li and Junyang Lin and Runji Lin and Dayiheng Liu and Gao Liu and Chengqiang Lu and Keming Lu and Jianxin Ma and Rui Men and Xingzhang Ren and Xuancheng Ren and Chuanqi Tan and Sinan Tan and Jianhong Tu and Peng Wang and Shijie Wang and Wei Wang and Shengguang Wu and Benfeng Xu and Jin Xu and An Yang and Hao Yang and Jian Yang and Shusheng Yang and Yang Yao and Bowen Yu and Hongyi Yuan and Zheng Yuan and Jianwei Zhang and Xingxuan Zhang and Yichang Zhang and Zhenru Zhang and Chang Zhou and Jingren Zhou and Xiaohuan Zhou and Tianhang Zhu},
+  journal={arXiv preprint arXiv:2309.16609},
+  year={2023}
+}
+3.2.Hong, J., Lee, N. and Thorne, J., 2024. Reference-free monolithic preference optimization with odds ratio. arXiv preprint arXiv:2403.07691.
