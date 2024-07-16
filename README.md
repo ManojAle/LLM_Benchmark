@@ -18,7 +18,21 @@ Here, Our Primary objective is to show the self consistancy of the LLMs using ou
 so, Executable Experiment, we run the code for N iterations 5 times to make sure our code before run for more than 5s. Normally, our NL to PL stage, LLMs struggle to generate the Optimized code as some lack of information in the description causes LLM to be not consistent in those cases. we wanted to experiment these for our performance related Examples which is crafted by humans. 
 
 
-Example Explanation: 
+#Example Demonstration: 
 
-Example-1: 
+Example-1:
+Link: ```https://github.com/pygae/clifford/commit/36b59633b30acc3cfd0f7b1b9e5f541c720e2f3f```
+Performance Bug Explanation:
+### Bug in the Old Code
+
+- **Inefficient Type Checking**:
+  - The old code first checked if `other` was a numeric scalar (`numbers.Number`).
+  - This incurred an expensive `isinstance` check, even though `MultiVector` operations were more frequent.
+
+### Rectification in the New Code
+
+- **Reordered Type Checks**:
+  - The new code checks if `other` is a `MultiVector` first.
+  - This prioritizes the more common case, reducing unnecessary overhead.
+
 
