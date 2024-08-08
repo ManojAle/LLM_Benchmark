@@ -5,8 +5,8 @@ Large Language Models (LLMs) have shown significant potential in code generation
 
 Current benchmarks like CodeXBleu and HumanEval evaluate code generation but overlook performance-level optimization. Evaluating LLMs' ability to generate optimized code requires high-quality performance data. This study focuses on:
 
-1. **Code Generation:** Generating optimized code from descriptions (NL to PL).
-2. **Code Summarization:** Summarizing code performance improvements (PL to NL).
+1. **Code Summarization:** Summarizing code performance improvements (PL to NL).
+2. **Code Generation:** Generating optimized code from descriptions (NL to PL).
 
 Self-consistency in LLMs means accurate translation and back-translation between PL and NL, maintaining semantic integrity. This study evaluates LLMs' self-consistency using performance data from Git repositories, focusing on categories like API misuse, memory inefficiency, and inefficient algorithms.
 
